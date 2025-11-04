@@ -181,10 +181,11 @@ echo "✓ Source code packaged"
 
 echo ""
 echo "== Uploading to Azure App Service =="
-az webapp deployment source config-zip \
+az webapp deploy \
   --resource-group "$RG" \
   --name "$APP_NAME" \
-  --src app.zip
+  --src-path app.zip \
+  --type zip
 
 echo "Waiting for Azure to build and deploy..."
 sleep 30
