@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: aptos-image-demo
+metadata:
+  template: aptos-image-demo-managed-instance@1.0.0
+
+hooks:
+  preprovision:
+    posix:
+      shell: sh
+      run: ./azd-hooks/preprovision.sh
+      interactive: true
+      continueOnError: false
+      
+  postprovision:
+    posix:
+      shell: sh
+      run: ./azd-hooks/postprovision.sh
+      interactive: true
+      continueOnError: false
+
+services:
+  web:
+    project: ./src/AptosImageDemo
+    language: csharp
+    host: appservice
