@@ -13,4 +13,21 @@ packages/
 *.nupkg
 
 # macOS
-.DS_Store
+.DS_Storepwd
+
+# Build artifacts
+**/bin/
+**/obj/
+**/publish/
+*.zip
+_install_stage/
+
+# Azure
+.azure/
+*.parameters.json
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo

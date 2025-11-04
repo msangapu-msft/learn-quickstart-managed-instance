@@ -150,6 +150,7 @@ fi
 # Create Web App
 APP_NAME="aptos-app-$(date +%H%M%S)"
 
+# Create Web App (lines 151-161 - UPDATE runtime)
 echo ""
 echo "== Creating Web App =="
 echo "App Name: $APP_NAME"
@@ -158,7 +159,7 @@ az webapp create \
   --name "$APP_NAME" \
   --resource-group "$RG" \
   --plan "$PLAN_NAME" \
-  --runtime "DOTNET|9"
+  --runtime "ASPNET|V4.8"  # ← Changed from DOTNET|9
 
 # Assign managed identity to web app
 echo "Assigning managed identity to web app..."
@@ -167,14 +168,20 @@ az webapp identity assign \
   --resource-group "$RG" \
   --identities "$IDENTITY_ID"
 
-# Build and deploy application
+# Build and deploy application (lines 171-186 - USE MSBUILD)
 echo ""
-echo "== Building .NET application =="
+echo "== Building .NET Framework 4.8 application =="
 pushd src/AptosImageDemo >/dev/null
-dotnet publish -c Release -o publish
+
+# Restore NuGet packages
+nuget restore -PackagesDirectory ../../packages
+
+# Build using MSBuild
+msbuild AptosImageDemo.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /t:WebPublish /p:WebPublishMethod=FileSystem /p:publishUrl=./publish
+
+# Package for deployment
 cd publish
 zip -qr ../../../app.zip .
-cd ..
 popd >/dev/null
 echo "✓ Application packaged"
 
