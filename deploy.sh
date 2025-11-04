@@ -158,7 +158,7 @@ az webapp create \
   --name "$APP_NAME" \
   --resource-group "$RG" \
   --plan "$PLAN_NAME" \
-  --runtime "DOTNET|9"
+  --runtime "ASPNET|V4.8"
 
 # Assign managed identity to web app
 echo "Assigning managed identity to web app..."
@@ -171,7 +171,13 @@ az webapp identity assign \
 echo ""
 echo "== Building .NET application =="
 pushd src/AptosImageDemo >/dev/null
-dotnet publish -c Release -o publish
+
+# Restore NuGet packages
+nuget restore -PackagesDirectory ../../packages
+
+# Build using MSBuild
+msbuild AptosImageDemo.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:publishUrl=./publish /t:WebPublish
+
 cd publish
 zip -qr ../../../app.zip .
 cd ..

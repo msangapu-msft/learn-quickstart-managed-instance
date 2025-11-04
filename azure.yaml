@@ -18,9 +18,3 @@ hooks:
       run: ./azd-hooks/postprovision.sh
       interactive: true
       continueOnError: false
-
-services:
-  web:
-    project: ./src/AptosImageDemo
-    language: csharp
-    host: appservice
