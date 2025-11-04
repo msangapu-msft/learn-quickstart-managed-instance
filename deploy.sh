@@ -5,49 +5,57 @@ set -euo pipefail
 # Azure App Service Managed Instance Deploy
 # Location: West Central US
 # Author: msangapu-msft
-# Date: 2025-11-04
+# Updated: 2025-11-04
 #############################################
 
 ENV_NAME=${ENV_NAME:-aptos-mi-demo}
 LOCATION=${LOCATION:-westcentralus}
 
+# Fixed resource names
+RG_NAME=${RG_NAME:-rg-aptos-mi-demo}
+PLAN_NAME=${PLAN_NAME:-mi-plan-demo}
+APP_NAME=${APP_NAME:-aptos-app-demo}
+
 echo "==================================================="
 echo "Azure App Service Managed Instance Deployment"
 echo "==================================================="
-echo "Environment: $ENV_NAME"
-echo "Location: $LOCATION"
+echo "Environment:        $ENV_NAME"
+echo "Location:           $LOCATION"
+echo "Resource Group:     $RG_NAME"
+echo "App Service Plan:   $PLAN_NAME"
+echo "Web App:            $APP_NAME"
 echo ""
 
-# Generate random hash suffix for resource group
-RANDOM_HASH=$(openssl rand -hex 4)
-RG_NAME="rg-aptos-mi-demo"
+# Create or reuse resource group
+if az group exists --name "$RG_NAME" | grep -q true; then
+  echo "✓ Resource group already exists: $RG_NAME"
+else
+  echo "== Creating resource group =="
+  az group create --name "$RG_NAME" --location "$LOCATION" >/dev/null
+fi
 
-echo "Resource Group: $RG_NAME"
-echo ""
+# Optional: reset environment if RESET_ENV=1
+if [ "${RESET_ENV:-0}" = "1" ]; then
+  echo "RESET_ENV=1 → Removing existing azd environment directory .azure/$ENV_NAME"
+  rm -rf ".azure/$ENV_NAME"
+fi
 
-# Clean old environment (if exists)
-echo "== Cleaning old environment =="
-rm -rf .azure/$ENV_NAME
+# Create azd environment if missing
+if [ ! -d ".azure/$ENV_NAME" ]; then
+  echo "== Creating azd environment =="
+  azd env new "$ENV_NAME" --location "$LOCATION" --no-prompt
+else
+  echo "✓ azd environment already exists (.azure/$ENV_NAME)"
+fi
 
-# Create resource group
-echo "== Creating resource group =="
-az group create --name "$RG_NAME" --location "$LOCATION"
-
-# Create azd environment
-echo "== Creating azd environment =="
-azd env new "$ENV_NAME" --location "$LOCATION" --no-prompt
-
-# Set environment variables using key=value syntax
 echo "== Setting environment variables =="
 azd env set "AZURE_LOCATION=$LOCATION"
 azd env set "AZURE_RESOURCE_GROUP=$RG_NAME"
 
-# Build font package
 echo ""
 echo "== Building font installation package =="
 bash scripts/prepare-install.sh
 
-# Verify fonts are packaged
 FONT_COUNT=$(unzip -l install-scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
 if [ "$FONT_COUNT" -eq 0 ]; then
   echo "ERROR: No fonts found in install-scripts.zip"
@@ -55,12 +63,11 @@ if [ "$FONT_COUNT" -eq 0 ]; then
 fi
 echo "✓ $FONT_COUNT font files packaged"
 
-# Provision base infrastructure (identity + storage)
 echo ""
-echo "== Provisioning base infrastructure =="
+echo "== Provisioning base infrastructure (identity + storage) =="
 azd provision
 
-# Get provisioned resource values
+# Gather provisioned values
 VALUES=$(azd env get-values --output json)
 RG=$(echo "$VALUES" | jq -r .AZURE_RESOURCE_GROUP)
 STORAGE=$(echo "$VALUES" | jq -r .STORAGE_ACCOUNT_NAME)
@@ -69,23 +76,18 @@ IDENTITY_ID=$(echo "$VALUES" | jq -r .MANAGED_IDENTITY_ID)
 
 echo ""
 echo "Provisioned Resources:"
-echo "  Resource Group: $RG"
-echo "  Storage Account: $STORAGE"
-echo "  Container: $CONTAINER"
-echo "  Identity: $IDENTITY_ID"
+echo "  Resource Group:      $RG"
+echo "  Storage Account:     $STORAGE"
+echo "  Container:           $CONTAINER"
+echo "  Managed Identity ID: $IDENTITY_ID"
 
-# Upload font package to blob storage
 echo ""
 echo "== Uploading font package to storage =="
-
-# Get current user's object ID
 USER_OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+echo "Current user ObjectId: $USER_OBJECT_ID"
 
-echo "Current user: msangapu-msft (ObjectId: $USER_OBJECT_ID)"
-
-# Grant current user Storage Blob Data Contributor role
-echo "Granting Storage Blob Data Contributor role to current user..."
+echo "Granting Storage Blob Data Contributor (if not already assigned)..."
 az role assignment create \
   --role "Storage Blob Data Contributor" \
   --assignee-object-id "$USER_OBJECT_ID" \
@@ -93,11 +95,9 @@ az role assignment create \
   --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/$STORAGE" \
   --only-show-errors 2>/dev/null || echo "  (Role assignment may already exist)"
 
-# Wait for role propagation
-echo "Waiting 20 seconds for role assignment to propagate..."
-sleep 20
+echo "Waiting 15 seconds for role propagation..."
+sleep 15
 
-# Upload the ZIP
 echo "Uploading install-scripts.zip..."
 az storage blob upload \
   --account-name "$STORAGE" \
@@ -105,31 +105,29 @@ az storage blob upload \
   --name install-scripts.zip \
   --file install-scripts.zip \
   --auth-mode login \
-  --overwrite
-
+  --overwrite >/dev/null
 echo "✓ Font package uploaded"
 
-# Deploy App Service Managed Instance Plan
-PLAN_NAME="mi-plan-$(date +%H%M%S)"
 SCRIPT_URI="https://${STORAGE}.blob.core.windows.net/${CONTAINER}/install-scripts.zip"
 
 echo ""
-echo "== Deploying Managed Instance Plan =="
-echo "Plan Name: $PLAN_NAME"
-echo "Install Script URI: $SCRIPT_URI"
+echo "== Ensuring App Service Managed Instance Plan =="
+if az resource show --resource-group "$RG" --resource-type Microsoft.Web/serverfarms --name "$PLAN_NAME" &>/dev/null; then
+  echo "✓ Plan already exists: $PLAN_NAME"
+else
+  echo "Creating Managed Instance Plan: $PLAN_NAME"
+  az deployment group create \
+    --resource-group "$RG" \
+    --template-file infra/app-service-plan-managed-instance.json \
+    --parameters \
+      location="$LOCATION" \
+      appServicePlanName="$PLAN_NAME" \
+      userAssignedIdentityResourceId="$IDENTITY_ID" \
+      installScriptSourceUri="$SCRIPT_URI" \
+      skuName=P1V4 \
+      skuCapacity=1 >/dev/null
+fi
 
-az deployment group create \
-  --resource-group "$RG" \
-  --template-file infra/app-service-plan-managed-instance.json \
-  --parameters \
-    location="$LOCATION" \
-    appServicePlanName="$PLAN_NAME" \
-    userAssignedIdentityResourceId="$IDENTITY_ID" \
-    installScriptSourceUri="$SCRIPT_URI" \
-    skuName=P1V4 \
-    skuCapacity=1
-
-# Verify Managed Instance properties
 echo ""
 echo "== Verifying Managed Instance properties =="
 IS_CUSTOM=$(az resource show \
@@ -137,74 +135,67 @@ IS_CUSTOM=$(az resource show \
   --resource-type Microsoft.Web/serverfarms \
   --name "$PLAN_NAME" \
   --api-version 2024-11-01 \
-  --query "properties.isCustomMode" -o tsv)
+  --query "properties.isCustomMode" -o tsv 2>/dev/null || echo "unknown")
 
 if [ "$IS_CUSTOM" = "true" ]; then
-  echo "✓ Managed Instance plan created successfully (isCustomMode=true)"
+  echo "✓ Managed Instance plan confirmed (isCustomMode=true)"
 else
-  echo "⚠️  Warning: isCustomMode=$IS_CUSTOM"
-  echo "   This region (westcentralus) may not support true Managed Instance."
-  echo "   Fonts may not auto-install via installScripts."
+  echo "⚠️ isCustomMode=$IS_CUSTOM (region may not support full MI features; scripts/fonts may not auto-install)"
 fi
 
-# Create Web App
-APP_NAME="aptos-app-$(date +%H%M%S)"
-
-# Create Web App (lines 151-161 - UPDATE runtime)
 echo ""
-echo "== Creating Web App =="
-echo "App Name: $APP_NAME"
+echo "== Ensuring Web App =="
+if az webapp show --name "$APP_NAME" --resource-group "$RG" &>/dev/null; then
+  echo "✓ Web App already exists: $APP_NAME"
+else
+  echo "Creating Web App: $APP_NAME"
+  az webapp create \
+    --name "$APP_NAME" \
+    --resource-group "$RG" \
+    --plan "$PLAN_NAME" \
+    --runtime "ASPNET|V4.8" >/dev/null
+fi
 
-az webapp create \
-  --name "$APP_NAME" \
-  --resource-group "$RG" \
-  --plan "$PLAN_NAME" \
-  --runtime "ASPNET|V4.8"  # ← Changed from DOTNET|9
-
-# Assign managed identity to web app
-echo "Assigning managed identity to web app..."
-az webapp identity assign \
-  --name "$APP_NAME" \
-  --resource-group "$RG" \
-  --identities "$IDENTITY_ID"
-
-# Deploy source code - let Azure build it
 echo ""
-echo "== Deploying source code to Azure =="
-echo "Azure will build the .NET Framework 4.8 application..."
+echo "== Assigning managed identity to Web App (if available) =="
+if [ -n "$IDENTITY_ID" ] && [ "$IDENTITY_ID" != "null" ]; then
+  az webapp identity assign \
+    --name "$APP_NAME" \
+    --resource-group "$RG" \
+    --identities "$IDENTITY_ID" >/dev/null || echo "⚠️ Failed to assign managed identity"
+else
+  echo "⚠️ No managed identity ID found; skipping assignment"
+fi
 
-# Package source code (not built artifacts)
+echo ""
+echo "== Packaging source code for deployment =="
 pushd src/AptosImageDemo >/dev/null
 zip -qr ../../app.zip . -x "bin/*" -x "obj/*" -x "*.user" -x ".vs/*" -x "packages/*"
 popd >/dev/null
-echo "✓ Source code packaged"
+echo "✓ Source packaged"
 
 echo ""
-echo "== Uploading to Azure App Service =="
+echo "== Deploying application code =="
 az webapp deploy \
   --resource-group "$RG" \
   --name "$APP_NAME" \
   --src-path app.zip \
-  --type zip
+  --type zip >/dev/null
 
-echo "Waiting for Azure to build and deploy..."
+echo "Waiting 30 seconds for Azure to process deployment..."
 sleep 30
 
-# Check deployment status
-echo "✓ Deployment initiated. Azure is building your app..."
-# Summary
 echo ""
 echo "==================================================="
-echo "✓ Deployment Complete!"
+echo "✓ Deployment Complete"
 echo "==================================================="
-echo ""
 echo "Resource Group:  $RG"
 echo "Plan:            $PLAN_NAME"
 echo "Web App:         $APP_NAME"
-echo ""
 echo "App URL:         https://${APP_NAME}.azurewebsites.net/"
 echo ""
 echo "Test endpoints:"
 echo "  https://${APP_NAME}.azurewebsites.net/"
+echo "  https://${APP_NAME}.azurewebsites.net/font-info"
 echo "  https://${APP_NAME}.azurewebsites.net/aptos-image?text=Hello&size=72"
 echo ""
