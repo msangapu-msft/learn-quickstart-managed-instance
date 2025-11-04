@@ -20,7 +20,7 @@ resource appService 'Microsoft.Web/sites@2023-01-01' = {
   properties: {
     serverFarmId: appServicePlanId
     siteConfig: {
-      windowsFxVersion: isWindows ? 'DOTNET|9' : ''
+      windowsFxVersion: isWindows ? 'v4.8' : ''
       appSettings: [
         for setting in items(appSettings): {
           name: setting.key
