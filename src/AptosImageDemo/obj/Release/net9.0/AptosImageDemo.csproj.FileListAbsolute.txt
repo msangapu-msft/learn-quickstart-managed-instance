@@ -40,3 +40,8 @@
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/AptosImageDemo.deps.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/AptosImageDemo.runtimeconfig.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/AptosImageDemo.staticwebassets.endpoints.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/publish/web.config
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/publish/AptosImageDemo.deps.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/publish/AptosImageDemo.runtimeconfig.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/bin/Release/net9.0/publish/publish/publish/publish/AptosImageDemo.staticwebassets.endpoints.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/obj/Release/net9.0/AptosImageDemo.sourcelink.json

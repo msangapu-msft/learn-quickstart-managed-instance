@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AptosImageDemo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+051169b82994f3e1153aa8f269d6354d03f5fdb9")]
 [assembly: System.Reflection.AssemblyProductAttribute("AptosImageDemo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AptosImageDemo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

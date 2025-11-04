@@ -8,9 +8,9 @@ using SixLabors.ImageSharp.Processing;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-// Load font once at startup
-var fontFamily = LoadSystemFont();
-Console.WriteLine($"Loaded font: {fontFamily.Name}");
+// Load font once at startup - now returns both FontFamily and path
+var (fontFamily, fontPath) = LoadSystemFont();
+Console.WriteLine($"Loaded font: {fontFamily.Name} from {fontPath}");
 
 app.MapGet("/", () => "Image Demo API - Endpoints: /font-info and /aptos-image");
 
@@ -18,6 +18,7 @@ app.MapGet("/font-info", () => new
 {
     platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
     fontLoaded = fontFamily.Name,
+    fontPath = fontPath,
     isWindows = OperatingSystem.IsWindows()
 });
 
@@ -33,20 +34,33 @@ app.MapGet("/aptos-image", (HttpContext ctx) =>
         padding = 20;
     padding = Math.Clamp(padding, 0, 100);
     
-    // Create font
+    // Create fonts - main text and smaller font for path info
     var font = fontFamily.CreateFont(size);
+    var pathFont = fontFamily.CreateFont(Math.Max(12, size / 4)); // Smaller font for path
     
-    // Measure text bounds
+    // Measure text bounds for main text
     var bounds = TextMeasurer.MeasureBounds(text, new TextOptions(font));
-    int width = (int)Math.Ceiling(bounds.Width) + (padding * 2);
-    int height = (int)Math.Ceiling(bounds.Height) + (padding * 2);
+    
+    // Measure text bounds for font path
+    var pathText = $"Font: {fontPath}";
+    var pathBounds = TextMeasurer.MeasureBounds(pathText, new TextOptions(pathFont));
+    
+    // Calculate image dimensions
+    int width = (int)Math.Ceiling(Math.Max(bounds.Width, pathBounds.Width)) + (padding * 2);
+    int height = (int)Math.Ceiling(bounds.Height + pathBounds.Height + 10) + (padding * 2); // 10px gap between texts
     
     // Create image
     using var image = new Image<Rgba32>(Math.Max(width, 10), Math.Max(height, 10));
     image.Mutate(context =>
     {
         context.Fill(Color.White);
+        
+        // Draw main text
         context.DrawText(text, font, Color.Black, new PointF(padding, padding));
+        
+        // Draw font path below main text
+        float pathY = padding + bounds.Height + 10; // 10px gap
+        context.DrawText(pathText, pathFont, Color.Gray, new PointF(padding, pathY));
     });
     
     // Return as PNG
@@ -57,7 +71,7 @@ app.MapGet("/aptos-image", (HttpContext ctx) =>
 
 app.Run();
 
-static FontFamily LoadSystemFont()
+static (FontFamily, string) LoadSystemFont()
 {
     var collection = new FontCollection();
     
@@ -71,7 +85,7 @@ static FontFamily LoadSystemFont()
         if (File.Exists(aptosPath))
         {
             Console.WriteLine($"Loading Aptos from: {aptosPath}");
-            return collection.Add(aptosPath);
+            return (collection.Add(aptosPath), aptosPath);
         }
         
         // Fall back to Arial
@@ -79,85 +93,9 @@ static FontFamily LoadSystemFont()
         if (File.Exists(arialPath))
         {
             Console.WriteLine($"Loading Arial from: {arialPath}");
-            return collection.Add(arialPath);
+            return (collection.Add(arialPath), arialPath);
         }
     }
     
-    // macOS - look for .ttf files (avoid .ttc)
-    if (OperatingSystem.IsMacOS())
-    {
-        // Try specific TTF files that are commonly available
-        string[] ttfCandidates = [
-            "/System/Library/Fonts/Supplemental/Arial.ttf",
-            "/System/Library/Fonts/Supplemental/Verdana.ttf",
-            "/System/Library/Fonts/Supplemental/Georgia.ttf",
-            "/System/Library/Fonts/Supplemental/Courier New.ttf",
-            "/Library/Fonts/Arial.ttf",
-            "/System/Library/Fonts/Avenir.ttc",  // Some .ttc might work
-            "/System/Library/Fonts/Avenir Next.ttc"
-        ];
-        
-        foreach (var path in ttfCandidates)
-        {
-            if (File.Exists(path) && path.EndsWith(".ttf"))
-            {
-                try
-                {
-                    Console.WriteLine($"Trying to load: {path}");
-                    return collection.Add(path);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to load {path}: {ex.Message}");
-                }
-            }
-        }
-        
-        // Find ANY .ttf file in system fonts
-        Console.WriteLine("Searching for any .ttf file in /System/Library/Fonts/Supplemental/");
-        var supplementalFonts = Directory.GetFiles("/System/Library/Fonts/Supplemental/", "*.ttf", SearchOption.TopDirectoryOnly);
-        foreach (var font in supplementalFonts)
-        {
-            try
-            {
-                Console.WriteLine($"Trying: {font}");
-                return collection.Add(font);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed: {ex.Message}");
-            }
-        }
-        
-        // Try Library Fonts
-        if (Directory.Exists("/Library/Fonts"))
-        {
-            var libraryFonts = Directory.GetFiles("/Library/Fonts", "*.ttf", SearchOption.TopDirectoryOnly);
-            foreach (var font in libraryFonts)
-            {
-                try
-                {
-                    Console.WriteLine($"Trying: {font}");
-                    return collection.Add(font);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed: {ex.Message}");
-                }
-            }
-        }
-    }
-    
-    // Linux - use DejaVu Sans
-    if (OperatingSystem.IsLinux())
-    {
-        var dejavuPath = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-        if (File.Exists(dejavuPath))
-        {
-            Console.WriteLine($"Loading DejaVu Sans from: {dejavuPath}");
-            return collection.Add(dejavuPath);
-        }
-    }
-    
-    throw new InvalidOperationException("Could not find any compatible .ttf font file on this system");
+    throw new InvalidOperationException("Could not find Aptos.ttf or Arial.ttf in Windows Fonts directory");
 }

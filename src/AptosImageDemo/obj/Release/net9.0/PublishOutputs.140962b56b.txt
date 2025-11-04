@@ -1,4 +1,5 @@
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/AptosImageDemo
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/publish/web.config
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/web.config
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/web.config
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/web.config
@@ -11,6 +12,9 @@
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/AptosImageDemo.deps.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/AptosImageDemo.runtimeconfig.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/AptosImageDemo.staticwebassets.endpoints.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/publish/AptosImageDemo.deps.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/publish/AptosImageDemo.runtimeconfig.json
+/Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/publish/publish/publish/publish/AptosImageDemo.staticwebassets.endpoints.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/AptosImageDemo.dll
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/AptosImageDemo.deps.json
 /Users/msangapu/azd-managed-instance/src/AptosImageDemo/publish/AptosImageDemo.runtimeconfig.json
