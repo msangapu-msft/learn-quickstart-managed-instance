@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Build artifacts
 bin/
 obj/
@@ -31,3 +32,7 @@ _install_stage/
 .vscode/
 *.user
 *.suo
+=======
+bin/
+obj/
+>>>>>>> db3b45b (Fix: Update azd template for .NET Framework 4.8)
