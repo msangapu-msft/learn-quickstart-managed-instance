@@ -168,30 +168,29 @@ az webapp identity assign \
   --resource-group "$RG" \
   --identities "$IDENTITY_ID"
 
-# Build and deploy application (lines 171-186 - USE MSBUILD)
+# Deploy source code - let Azure build it
 echo ""
-echo "== Building .NET Framework 4.8 application =="
+echo "== Deploying source code to Azure =="
+echo "Azure will build the .NET Framework 4.8 application..."
+
+# Package source code (not built artifacts)
 pushd src/AptosImageDemo >/dev/null
-
-# Restore NuGet packages
-nuget restore -PackagesDirectory ../../packages
-
-# Build using MSBuild
-msbuild AptosImageDemo.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /t:WebPublish /p:WebPublishMethod=FileSystem /p:publishUrl=./publish
-
-# Package for deployment
-cd publish
-zip -qr ../../../app.zip .
+zip -qr ../../app.zip . -x "bin/*" -x "obj/*" -x "*.user" -x ".vs/*" -x "packages/*"
 popd >/dev/null
-echo "✓ Application packaged"
+echo "✓ Source code packaged"
 
 echo ""
-echo "== Deploying application code =="
+echo "== Uploading to Azure App Service =="
 az webapp deployment source config-zip \
   --resource-group "$RG" \
   --name "$APP_NAME" \
   --src app.zip
 
+echo "Waiting for Azure to build and deploy..."
+sleep 30
+
+# Check deployment status
+echo "✓ Deployment initiated. Azure is building your app..."
 # Summary
 echo ""
 echo "==================================================="
