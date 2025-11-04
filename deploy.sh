@@ -20,7 +20,7 @@ echo ""
 
 # Generate random hash suffix for resource group
 RANDOM_HASH=$(openssl rand -hex 4)
-RG_NAME="rg-aptos-mi-demo-${RANDOM_HASH}"
+RG_NAME="rg-aptos-mi-demo"
 
 echo "Resource Group: $RG_NAME"
 echo ""
