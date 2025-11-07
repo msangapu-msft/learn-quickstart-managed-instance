@@ -98,12 +98,12 @@ echo "Waiting 20 seconds for role assignment to propagate..."
 sleep 20
 
 # Upload the ZIP
-echo "Uploading install-scripts.zip..."
+echo "Uploading configuration-scripts.zip..."
 az storage blob upload \
   --account-name "$STORAGE" \
   --container-name "$CONTAINER" \
-  --name install-scripts.zip \
-  --file install-scripts.zip \
+  --name configuration-scripts.zip \
+  --file configuration-scripts.zip \
   --auth-mode login \
   --overwrite
 

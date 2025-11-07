@@ -7,10 +7,10 @@ param appServicePlanName string
 @description('Resource ID of the user-assigned managed identity.')
 param userAssignedIdentityResourceId string
 
-@description('Storage account name containing install-scripts.zip.')
+@description('Storage account name containing configuration-scripts.zip.')
 param storageAccountName string
 
-@description('Blob container name containing install-scripts.zip.')
+@description('Blob container name containing configuration-scripts.zip.')
 param containerName string
 
 @description('Tags to apply.')
@@ -23,7 +23,7 @@ param skuName string = 'P1V4'
 param skuCapacity int = 1
 
 // Construct blob URI using environment suffix (no hard-coded core.windows.net)
-var installScriptBlobUri = 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${containerName}/install-scripts.zip'
+var installScriptBlobUri = 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${containerName}/configuration-scripts.zip'
 
 resource miPlan 'Microsoft.Web/serverfarms@2024-11-01' = {
   name: appServicePlanName

@@ -30,7 +30,6 @@ Before running the deployment, ensure you have:
 ├── scripts/
 │   └── prepare-install.sh       # Font package preparation script
 ├── configuration-scripts.zip    # Generated font package
-├── install-scripts.zip         # Final installation package
 └── README.md                    # This file
 ```
 
