@@ -78,7 +78,7 @@ if [ -n "$WEB_URI" ] && [ "$WEB_URI" != "null" ]; then
     echo "Web App URL: $WEB_URI"
 fi
 
-echo "\n=== Deployment Complete ==="
+echo "=== Deployment Complete ==="
 echo "Storage Account: $STORAGE_ACCOUNT_NAME"
 echo "Container Name: $STORAGE_CONTAINER_NAME"
 echo "Managed Identity Client ID: $MANAGED_IDENTITY_CLIENT_ID"
