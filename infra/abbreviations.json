@@ -1,7 +1,0 @@
-{
-  "webServerFarms": "plan-",
-  "webSitesAppService": "app-",
-  "managedIdentityUserAssignedIdentities": "id-",
-  "storageStorageAccounts": "st",
-  "operationalInsightsWorkspaces": "log-"
-}
