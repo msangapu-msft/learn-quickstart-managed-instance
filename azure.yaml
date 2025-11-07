@@ -1,15 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: learn-quickstart-managed-instance
+name: aptos-image-demo
 metadata:
-  template: learn-quickstart-managed-instance
-infra:
-  provider: bicep
-  path: infra
-  module: main
-  parameters:
-    location: westcentralus
-    resourceGroupName: rg-managed-instance
+  template: aptos-image-demo-managed-instance@1.0.0
 
 hooks:
   preprovision:
@@ -25,3 +18,9 @@ hooks:
       run: ./azd-hooks/postprovision.sh
       interactive: true
       continueOnError: false
+
+services:
+  web:
+    project: ./src/AptosImageDemo
+    language: csharp
+    host: appservice

@@ -2,7 +2,7 @@
 set -e
 
 echo "=================================================="
-echo "Uploading configuration package to storage..."
+echo "Uploading installation package to storage..."
 echo "=================================================="
 
 # Get environment values from azd
@@ -11,8 +11,8 @@ CONTAINER_NAME=$(azd env get-values --output json | jq -r .STORAGE_CONTAINER_NAM
 RESOURCE_GROUP=$(azd env get-values --output json | jq -r .AZURE_RESOURCE_GROUP)
 
 # Check if zip exists
-if [ ! -f "configuration-scripts.zip" ]; then
-    echo "❌ Error: configuration-scripts.zip not found!"
+if [ ! -f "install-scripts.zip" ]; then
+    echo "❌ Error: install-scripts.zip not found!"
     exit 1
 fi
 
@@ -24,6 +24,9 @@ echo ""
 # Get current user's object ID and subscription ID
 USER_OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+echo "Current User: msangapu-msft (ObjectId: $USER_OBJECT_ID)"
+echo ""
 
 # Grant current user Storage Blob Data Contributor role
 echo "Granting Storage Blob Data Contributor role to current user..."
@@ -39,14 +42,14 @@ echo "Waiting 20 seconds for role assignment to propagate..."
 sleep 20
 
 echo ""
-echo "Uploading configuration-scripts.zip to $STORAGE_ACCOUNT/$CONTAINER_NAME..."
+echo "Uploading install-scripts.zip to $STORAGE_ACCOUNT/$CONTAINER_NAME..."
 
 # Upload using Azure CLI
 az storage blob upload \
     --account-name "$STORAGE_ACCOUNT" \
     --container-name "$CONTAINER_NAME" \
-    --name "configuration-scripts.zip" \
-    --file "configuration-scripts.zip" \
+    --name "install-scripts.zip" \
+    --file "install-scripts.zip" \
     --auth-mode login \
     --overwrite
 
@@ -55,13 +58,13 @@ echo "Verifying upload..."
 BLOB_EXISTS=$(az storage blob exists \
     --account-name "$STORAGE_ACCOUNT" \
     --container-name "$CONTAINER_NAME" \
-    --name "configuration-scripts.zip" \
+    --name "install-scripts.zip" \
     --auth-mode login \
     --query exists \
     --output tsv)
 
 if [ "$BLOB_EXISTS" = "true" ]; then
-    echo "✓ configuration-scripts.zip successfully uploaded to blob storage"
+    echo "✓ install-scripts.zip successfully uploaded to blob storage"
 else
     echo "❌ Error: Failed to verify blob upload"
     exit 1

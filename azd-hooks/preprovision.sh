@@ -45,10 +45,10 @@ fi
 cd temp-install
 echo "Files to be zipped:"
 ls -la
-zip -r ../configuration-scripts.zip *
+zip -r ../install-scripts.zip *
 cd ..
 
 # Clean up
 rm -rf temp-install
 
-echo "✓ configuration-scripts.zip created ($(ls -lh configuration-scripts.zip | awk '{print $5}'))"
+echo "✓ install-scripts.zip created ($(ls -lh install-scripts.zip | awk '{print $5}'))"

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AptosImageDemo", "src\AptosImageDemo.csproj", "{2643137A-A312-286D-D7F7-FA34B58760F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2643137A-A312-286D-D7F7-FA34B58760F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2643137A-A312-286D-D7F7-FA34B58760F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2643137A-A312-286D-D7F7-FA34B58760F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2643137A-A312-286D-D7F7-FA34B58760F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4901D47C-6E6E-4AC0-9027-D907148E1EDC}
+	EndGlobalSection
+EndGlobal
