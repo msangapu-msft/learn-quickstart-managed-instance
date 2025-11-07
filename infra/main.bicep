@@ -25,10 +25,10 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var idName  = empty(managedIdentityName) ? '${abbrs.managedIdentityUserAssignedIdentities}${token}' : managedIdentityName
 var stgName = empty(storageAccountName) ? '${abbrs.storageStorageAccounts}${token}' : storageAccountName
 
-// Create the resource group
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+// Create the resource group - ENSURE location is set
+resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: resourceGroupName
-  location: location
+  location: location  // This MUST be specified
   tags: tags
 }
 
