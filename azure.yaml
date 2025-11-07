@@ -3,25 +3,29 @@
 name: learn-quickstart-managed-instance
 metadata:
   template: learn-quickstart-managed-instance
+
 infra:
   provider: bicep
   path: infra
   module: main
   parameters:
-    location: westcentralus
-    resourceGroupName: rg-managed-instance
+    # Passed into main.bicep
+    environmentName: ${AZURE_ENV_NAME}
+    location: ${AZURE_LOCATION}
+    # Use env-specific RG to avoid clashes (optional)
+    resourceGroupName: rg-managed-instance-${AZURE_ENV_NAME}
 
 hooks:
   preprovision:
     posix:
-      shell: sh
+      shell: bash
       run: ./azd-hooks/preprovision.sh
       interactive: true
       continueOnError: false
-      
+
   postprovision:
     posix:
-      shell: sh
+      shell: bash
       run: ./azd-hooks/postprovision.sh
       interactive: true
       continueOnError: false

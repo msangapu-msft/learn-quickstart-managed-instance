@@ -23,7 +23,8 @@ var token = toLower(uniqueString(subscription().subscriptionId, environmentName,
 var abbrs = loadJsonContent('./abbreviations.json')
 
 var idName  = empty(managedIdentityName) ? '${abbrs.managedIdentityUserAssignedIdentities}${token}' : managedIdentityName
-var stgName = empty(storageAccountName) ? '${abbrs.storageStorageAccounts}${token}' : storageAccountName
+var rawStgName = empty(storageAccountName) ? '${abbrs.storageStorageAccounts}${token}' : storageAccountName
+var stgName = take(rawStgName, 24)
 
 // Create the resource group - ENSURE location is set
 resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {

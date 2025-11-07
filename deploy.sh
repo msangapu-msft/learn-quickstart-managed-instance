@@ -39,8 +39,8 @@ azd env new "$ENV_NAME" --location "$LOCATION" --no-prompt
 
 # Set environment variables using key=value syntax
 echo "== Setting environment variables =="
-azd env set AZURE_LOCATION $LOCATION"
-azd env set AZURE_RESOURCE_GROUP $RG_NAME"
+azd env set AZURE_LOCATION "$LOCATION"
+azd env set AZURE_RESOURCE_GROUP "$RG_NAME"
 
 # Build font package
 echo ""
