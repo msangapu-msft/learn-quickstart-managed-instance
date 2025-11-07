@@ -6,7 +6,7 @@
       "value": "rg-mi"
     },
     "location": {
-      "value": "westcentralus"  // Hardcode instead of using ${AZURE_LOCATION}
+      "value": "westcentralus"
     },
     "resourceGroupName": {
       "value": "rg-managed-instance"
