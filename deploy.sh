@@ -48,9 +48,9 @@ echo "== Building font installation package =="
 bash scripts/prepare-install.sh
 
 # Verify fonts are packaged
-FONT_COUNT=$(unzip -l install-scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
+FONT_COUNT=$(unzip -l configuration-scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
 if [ "$FONT_COUNT" -eq 0 ]; then
-  echo "ERROR: No fonts found in install-scripts.zip"
+  echo "ERROR: No fonts found in configuration-scripts.zip"
   exit 1
 fi
 echo "✓ $FONT_COUNT font files packaged"
@@ -108,96 +108,3 @@ az storage blob upload \
   --overwrite
 
 echo "✓ Font package uploaded"
-
-# Deploy App Service Managed Instance Plan
-PLAN_NAME="mi-plan-$(date +%H%M%S)"
-SCRIPT_URI="https://${STORAGE}.blob.core.windows.net/${CONTAINER}/install-scripts.zip"
-
-echo ""
-echo "== Deploying Managed Instance Plan =="
-echo "Plan Name: $PLAN_NAME"
-echo "Install Script URI: $SCRIPT_URI"
-
-az deployment group create \
-  --resource-group "$RG" \
-  --template-file infra/app-service-plan-managed-instance.json \
-  --parameters \
-    location="$LOCATION" \
-    appServicePlanName="$PLAN_NAME" \
-    userAssignedIdentityResourceId="$IDENTITY_ID" \
-    installScriptSourceUri="$SCRIPT_URI" \
-    skuName=P1V4 \
-    skuCapacity=1
-
-# Verify Managed Instance properties
-echo ""
-echo "== Verifying Managed Instance properties =="
-IS_CUSTOM=$(az resource show \
-  --resource-group "$RG" \
-  --resource-type Microsoft.Web/serverfarms \
-  --name "$PLAN_NAME" \
-  --api-version 2024-11-01 \
-  --query "properties.isCustomMode" -o tsv)
-
-if [ "$IS_CUSTOM" = "true" ]; then
-  echo "✓ Managed Instance plan created successfully (isCustomMode=true)"
-else
-  echo "⚠️  Warning: isCustomMode=$IS_CUSTOM"
-  echo "   This region (westcentralus) may not support true Managed Instance."
-  echo "   Fonts may not auto-install via installScripts."
-fi
-
-# Create Web App
-APP_NAME="aptos-app-$(date +%H%M%S)"
-
-echo ""
-echo "== Creating Web App =="
-echo "App Name: $APP_NAME"
-
-az webapp create \
-  --name "$APP_NAME" \
-  --resource-group "$RG" \
-  --plan "$PLAN_NAME" \
-  --runtime "DOTNET|9"
-
-# Assign managed identity to web app
-echo "Assigning managed identity to web app..."
-az webapp identity assign \
-  --name "$APP_NAME" \
-  --resource-group "$RG" \
-  --identities "$IDENTITY_ID"
-
-# Build and deploy application
-echo ""
-echo "== Building .NET application =="
-pushd src/AptosImageDemo >/dev/null
-dotnet publish -c Release -o publish
-cd publish
-zip -qr ../../../app.zip .
-cd ..
-popd >/dev/null
-echo "✓ Application packaged"
-
-echo ""
-echo "== Deploying application code =="
-az webapp deployment source config-zip \
-  --resource-group "$RG" \
-  --name "$APP_NAME" \
-  --src app.zip
-
-# Summary
-echo ""
-echo "==================================================="
-echo "✓ Deployment Complete!"
-echo "==================================================="
-echo ""
-echo "Resource Group:  $RG"
-echo "Plan:            $PLAN_NAME"
-echo "Web App:         $APP_NAME"
-echo ""
-echo "App URL:         https://${APP_NAME}.azurewebsites.net/"
-echo ""
-echo "Test endpoints:"
-echo "  https://${APP_NAME}.azurewebsites.net/"
-echo "  https://${APP_NAME}.azurewebsites.net/aptos-image?text=Hello&size=72"
-echo ""
