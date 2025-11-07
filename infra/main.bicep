@@ -7,7 +7,7 @@ param resourceGroupName string = 'rg-managed-instance'
 
 @minLength(1)
 @description('Primary location for all resources')
-param location string = 'westcentralus'
+param location string = 'eastus'
 
 @description('Name of the environment')
 param environmentName string = 'rg-mi'

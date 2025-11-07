@@ -9,7 +9,7 @@ set -euo pipefail
 #############################################
 
 ENV_NAME=${ENV_NAME:-managed-instance-demo}
-LOCATION=${LOCATION:-westcentralus}
+LOCATION=${LOCATION:-eastus}
 
 echo "==================================================="
 echo "Azure App Service Managed Instance Deployment"

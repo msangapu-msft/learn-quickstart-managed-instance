@@ -14,7 +14,7 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "westcentralus"
+      "defaultValue": "eastus"
     },
     "storageAccountName": {
       "type": "string",

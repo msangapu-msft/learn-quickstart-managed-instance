@@ -6,7 +6,7 @@
       "value": "rg-mi"
     },
     "location": {
-      "value": "westcentralus"
+      "value": "eastus"
     },
     "resourceGroupName": {
       "value": "rg-managed-instance"

@@ -40,7 +40,7 @@ The deployment script uses the following environment variables (with defaults):
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ENV_NAME` | `aptos-mi-demo` | Azure Developer CLI environment name |
-| `LOCATION` | `westcentralus` | Azure region for deployment |
+| `LOCATION` | `eastus` | Azure region for deployment |
 
 ## Deployment Instructions
 
