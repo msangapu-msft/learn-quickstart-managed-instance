@@ -10,7 +10,7 @@ param resourceGroupName string = 'rg-managed-instance'
 param location string = 'westcentralus'
 
 @description('Name of the environment')
-param environmentName string
+param environmentName string = 'rg-mi'
 
 param storageAccountName string = ''
 param managedIdentityName string = ''
