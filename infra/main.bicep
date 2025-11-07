@@ -19,7 +19,10 @@ var tags = {
   'azd-env-name': environmentName
 }
 
-var token = toLower(uniqueString(subscription().subscriptionId, environmentName, location))
+@description('Unique suffix for resources')
+param uniqueSuffix string = utcNow('yyyyMMddHHmm')
+
+var token = toLower(uniqueString(subscription().subscriptionId, environmentName, location, uniqueSuffix))
 var abbrs = loadJsonContent('./abbreviations.json')
 
 var idName  = empty(managedIdentityName) ? '${abbrs.managedIdentityUserAssignedIdentities}${token}' : managedIdentityName
