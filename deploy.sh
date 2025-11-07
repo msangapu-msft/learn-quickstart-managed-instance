@@ -20,7 +20,7 @@ echo ""
 
 # Generate random hash suffix for resource group
 RANDOM_HASH=$(openssl rand -hex 4)
-RG_NAME="rg-aptos-mi-demo-${RANDOM_HASH}"
+RG_NAME="rg-managed-instance"
 
 echo "Resource Group: $RG_NAME"
 echo ""
@@ -39,8 +39,8 @@ azd env new "$ENV_NAME" --location "$LOCATION" --no-prompt
 
 # Set environment variables using key=value syntax
 echo "== Setting environment variables =="
-azd env set "AZURE_LOCATION=$LOCATION"
-azd env set "AZURE_RESOURCE_GROUP=$RG_NAME"
+azd env set AZURE_LOCATION $LOCATION"
+azd env set AZURE_RESOURCE_GROUP $RG_NAME"
 
 # Build font package
 echo ""
@@ -82,7 +82,7 @@ echo "== Uploading font package to storage =="
 USER_OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-echo "Current user: msangapu-msft (ObjectId: $USER_OBJECT_ID)"
+echo "Current user ObjectId: $USER_OBJECT_ID)"
 
 # Grant current user Storage Blob Data Contributor role
 echo "Granting Storage Blob Data Contributor role to current user..."
