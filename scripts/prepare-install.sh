@@ -10,7 +10,7 @@ STAGE_DIR="${REPO_ROOT}/_install_stage"
 INSTALL_PS1_SRC="${REPO_ROOT}/scripts/Install.ps1"
 FONTS_DIR_SRC="${REPO_ROOT}/scripts/fonts"
 
-echo "== Preparing install-scripts.zip =="
+echo "== Preparing configuration-scripts.zip =="
 echo "REPO_ROOT: $REPO_ROOT"
 echo "FONTS_DIR: $FONTS_DIR_SRC"
 
