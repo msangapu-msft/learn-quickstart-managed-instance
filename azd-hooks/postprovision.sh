@@ -2,7 +2,7 @@
 set -e
 
 echo "=================================================="
-echo "Uploading installation package to storage..."
+echo "Uploading configuration package to storage..."
 echo "=================================================="
 
 # Get environment values from azd
