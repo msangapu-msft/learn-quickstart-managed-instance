@@ -18,14 +18,14 @@ infra:
 hooks:
   preprovision:
     posix:
-      shell: bash
+      shell: sh
       run: ./azd-hooks/preprovision.sh
       interactive: true
       continueOnError: false
 
   postprovision:
     posix:
-      shell: bash
+      shell: sh
       run: ./azd-hooks/postprovision.sh
       interactive: true
       continueOnError: false
