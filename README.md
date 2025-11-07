@@ -29,7 +29,7 @@ Before running the deployment, ensure you have:
 ├── deploy.sh                    # Main deployment script
 ├── scripts/
 │   └── prepare-install.sh       # Font package preparation script
-├── configuration-scripts.zip    # Generated font package
+├── scripts.zip    # Generated font package
 └── README.md                    # This file
 ```
 
@@ -84,7 +84,7 @@ The deployment script performs the following steps:
 4. **Font Package Preparation**
    - Builds font installation package using `scripts/prepare-install.sh`
    - Verifies TTF fonts are properly packaged
-   - Creates `configuration-scripts.zip` containing fonts
+   - Creates `scripts.zip` containing fonts
 
 5. **Infrastructure Provisioning**
    - Provisions base infrastructure using azd
@@ -124,7 +124,7 @@ azd env get-values
 ## Troubleshooting
 
 ### Font Package Issues
-If you encounter "No fonts found in configuration-scripts.zip":
+If you encounter "No fonts found in scripts.zip":
 - Ensure TTF font files are present in the expected location
 - Check the `scripts/prepare-install.sh` script is executable
 - Verify the font packaging process completes successfully

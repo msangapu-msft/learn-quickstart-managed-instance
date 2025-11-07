@@ -4,13 +4,13 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "${SCRIPT_DIR}/.." && pwd )"
 
-ZIP_NAME="configuration-scripts.zip"
+ZIP_NAME="scripts.zip"
 STAGE_DIR="${REPO_ROOT}/_install_stage"
 
 INSTALL_PS1_SRC="${REPO_ROOT}/scripts/Install.ps1"
 FONTS_DIR_SRC="${REPO_ROOT}/scripts/fonts"
 
-echo "== Preparing configuration-scripts.zip =="
+echo "== Preparing scripts.zip =="
 echo "REPO_ROOT: $REPO_ROOT"
 echo "FONTS_DIR: $FONTS_DIR_SRC"
 

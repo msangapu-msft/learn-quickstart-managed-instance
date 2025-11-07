@@ -48,9 +48,9 @@ echo "== Building font installation package =="
 bash scripts/prepare-install.sh
 
 # Verify fonts are packaged
-FONT_COUNT=$(unzip -l configuration-scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
+FONT_COUNT=$(unzip -l scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
 if [ "$FONT_COUNT" -eq 0 ]; then
-  echo "ERROR: No fonts found in configuration-scripts.zip"
+  echo "ERROR: No fonts found in scripts.zip"
   exit 1
 fi
 echo "✓ $FONT_COUNT font files packaged"
@@ -98,12 +98,12 @@ echo "Waiting 20 seconds for role assignment to propagate..."
 sleep 20
 
 # Upload the ZIP
-echo "Uploading configuration-scripts.zip..."
+echo "Uploading scripts.zip..."
 az storage blob upload \
   --account-name "$STORAGE" \
   --container-name "$CONTAINER" \
-  --name configuration-scripts.zip \
-  --file configuration-scripts.zip \
+  --name scripts.zip \
+  --file scripts.zip \
   --auth-mode login \
   --overwrite
 

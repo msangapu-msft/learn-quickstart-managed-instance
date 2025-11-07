@@ -28,4 +28,4 @@ cd ..
 # Clean up
 rm -rf temp-install
 
-echo "✓ configuration-scripts.zip created ($(ls -lh configuration-scripts.zip | awk '{print $5}'))"
+echo "✓ scripts.zip created ($(ls -lh scripts.zip | awk '{print $5}'))"
