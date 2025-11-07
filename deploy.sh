@@ -8,7 +8,7 @@ set -euo pipefail
 # Date: 2025-11-04
 #############################################
 
-ENV_NAME=${ENV_NAME:-aptos-mi-demo}
+ENV_NAME=${ENV_NAME:-managed-instance-demo}
 LOCATION=${LOCATION:-westcentralus}
 
 echo "==================================================="

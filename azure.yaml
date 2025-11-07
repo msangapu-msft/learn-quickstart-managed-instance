@@ -1,8 +1,15 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: aptos-image-demo
+name: learn-quickstart-managed-instance
 metadata:
-  template: aptos-image-demo-managed-instance@1.0.0
+  template: learn-quickstart-managed-instance
+infra:
+  provider: bicep
+  path: infra
+  module: main
+  parameters:
+    location: westcentralus
+    resourceGroupName: rg-managed-instance
 
 hooks:
   preprovision:
