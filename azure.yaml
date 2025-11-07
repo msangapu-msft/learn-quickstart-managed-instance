@@ -13,7 +13,7 @@ infra:
     environmentName: ${AZURE_ENV_NAME}
     location: ${AZURE_LOCATION}
     # Use env-specific RG to avoid clashes (optional)
-    resourceGroupName: rg-managed-instance-${AZURE_ENV_NAME}
+    resourceGroupName: rg-managed-instance
 
 hooks:
   preprovision:
