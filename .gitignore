@@ -20,6 +20,7 @@ packages/
 **/obj/
 **/publish/
 _install_stage/
+*.zip
 
 # Azure
 .azure/
