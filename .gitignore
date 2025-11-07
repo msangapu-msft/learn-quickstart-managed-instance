@@ -24,7 +24,6 @@ _install_stage/
 
 # Azure
 .azure/
-*.parameters.json
 
 # IDE
 .vs/
