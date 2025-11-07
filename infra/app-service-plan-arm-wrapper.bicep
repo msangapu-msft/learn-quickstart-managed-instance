@@ -8,7 +8,7 @@ param skuName string = 'P1V4'
 param skuCapacity int = 1
 
 // Use environment suffix for sovereign clouds
-var installScriptBlobUri = 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${containerName}/install-scripts.zip'
+var installScriptBlobUri = 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${containerName}/configuration-scripts.zip'
 
 resource nestedDeployment 'Microsoft.Resources/deployments@2021-04-01' = {
   name: 'managedInstancePlanDeployment'

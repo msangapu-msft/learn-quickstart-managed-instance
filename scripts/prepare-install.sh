@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "${SCRIPT_DIR}/.." && pwd )"
 
-ZIP_NAME="install-scripts.zip"
+ZIP_NAME="configuration-scripts.zip"
 STAGE_DIR="${REPO_ROOT}/_install_stage"
 
 INSTALL_PS1_SRC="${REPO_ROOT}/scripts/Install.ps1"
