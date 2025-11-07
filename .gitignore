@@ -19,7 +19,6 @@ packages/
 **/bin/
 **/obj/
 **/publish/
-*.zip
 _install_stage/
 
 # Azure
