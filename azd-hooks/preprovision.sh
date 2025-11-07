@@ -22,7 +22,7 @@ fi
 cd temp-install
 echo "Files to be zipped:"
 ls -la
-zip -r ../install-scripts.zip *
+zip -r ../scripts.zip *
 cd ..
 
 # Clean up
