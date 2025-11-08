@@ -13,7 +13,7 @@ infra:
     environmentName: ${AZURE_ENV_NAME}
     location: eastus  # Hardcode location to avoid issues with unsupported regions
     # Use env-specific RG to avoid clashes (optional)
-    resourceGroupName: gsethASMIMultiT
+    resourceGroupName: rg-managed-instance
 
 hooks:
   preprovision:
