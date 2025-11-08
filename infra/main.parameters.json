@@ -9,7 +9,7 @@
       "value": "eastus"
     },
     "resourceGroupName": {
-      "value": "rg-managed-instance"
+      "value": "gsethASMIMultiT"
     },
     "appServicePlanSku": {
       "value": "P1V4"

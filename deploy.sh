@@ -20,7 +20,7 @@ echo ""
 
 # Generate random hash suffix for resource group
 RANDOM_HASH=$(openssl rand -hex 4)
-RG_NAME="rg-managed-instance"
+RG_NAME="gsethASMIMultiT"
 
 echo "Resource Group: $RG_NAME"
 echo ""

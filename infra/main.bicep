@@ -3,7 +3,7 @@ targetScope = 'subscription'
 @minLength(1)
 @maxLength(64)
 @description('Name of the resource group')
-param resourceGroupName string = 'rg-managed-instance'
+param resourceGroupName string = 'gsethASMIMultiT'
 
 @minLength(1)
 @description('Primary location for all resources')
