@@ -8,8 +8,8 @@ set -euo pipefail
 # Date: 2025-11-04
 #############################################
 
-ENV_NAME=${ENV_NAME:-aptos-mi-demo}
-LOCATION=${LOCATION:-westcentralus}
+ENV_NAME=${ENV_NAME:-managed-instance-demo}
+LOCATION=${LOCATION:-eastus}
 
 echo "==================================================="
 echo "Azure App Service Managed Instance Deployment"
@@ -20,7 +20,7 @@ echo ""
 
 # Generate random hash suffix for resource group
 RANDOM_HASH=$(openssl rand -hex 4)
-RG_NAME="rg-aptos-mi-demo-${RANDOM_HASH}"
+RG_NAME="rg-managed-instance"
 
 echo "Resource Group: $RG_NAME"
 echo ""
@@ -39,8 +39,8 @@ azd env new "$ENV_NAME" --location "$LOCATION" --no-prompt
 
 # Set environment variables using key=value syntax
 echo "== Setting environment variables =="
-azd env set "AZURE_LOCATION=$LOCATION"
-azd env set "AZURE_RESOURCE_GROUP=$RG_NAME"
+azd env set AZURE_LOCATION "$LOCATION"
+azd env set AZURE_RESOURCE_GROUP "$RG_NAME"
 
 # Build font package
 echo ""
@@ -48,9 +48,9 @@ echo "== Building font installation package =="
 bash scripts/prepare-install.sh
 
 # Verify fonts are packaged
-FONT_COUNT=$(unzip -l install-scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
+FONT_COUNT=$(unzip -l scripts.zip 2>/dev/null | grep -ic '\.ttf' || echo "0")
 if [ "$FONT_COUNT" -eq 0 ]; then
-  echo "ERROR: No fonts found in install-scripts.zip"
+  echo "ERROR: No fonts found in scripts.zip"
   exit 1
 fi
 echo "✓ $FONT_COUNT font files packaged"
@@ -82,7 +82,7 @@ echo "== Uploading font package to storage =="
 USER_OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-echo "Current user: msangapu-msft (ObjectId: $USER_OBJECT_ID)"
+echo "Current user ObjectId: $USER_OBJECT_ID)"
 
 # Grant current user Storage Blob Data Contributor role
 echo "Granting Storage Blob Data Contributor role to current user..."
@@ -98,16 +98,17 @@ echo "Waiting 20 seconds for role assignment to propagate..."
 sleep 20
 
 # Upload the ZIP
-echo "Uploading install-scripts.zip..."
+echo "Uploading scripts.zip..."
 az storage blob upload \
   --account-name "$STORAGE" \
   --container-name "$CONTAINER" \
-  --name install-scripts.zip \
-  --file install-scripts.zip \
+  --name scripts.zip \
+  --file scripts.zip \
   --auth-mode login \
   --overwrite
 
 echo "✓ Font package uploaded"
+
 
 # Deploy App Service Managed Instance Plan
 PLAN_NAME="mi-plan-$(date +%H%M%S)"
