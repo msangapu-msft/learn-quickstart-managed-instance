@@ -63,5 +63,6 @@ output AZURE_LOCATION string = location
 output AZURE_RESOURCE_GROUP string = rg.name
 output STORAGE_ACCOUNT_NAME string = storage.outputs.name
 output STORAGE_CONTAINER_NAME string = storage.outputs.containerName
+output MANAGED_IDENTITY_NAME string = managedIdentity.outputs.name
 output MANAGED_IDENTITY_ID string = managedIdentity.outputs.id
 output MANAGED_IDENTITY_CLIENT_ID string = managedIdentity.outputs.clientId

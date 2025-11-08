@@ -81,6 +81,6 @@ fi
 echo "=== Deployment Complete ==="
 echo "Storage Account: $STORAGE_ACCOUNT_NAME"
 echo "Container Name: $STORAGE_CONTAINER_NAME"
-echo "Managed Identity Client ID: $MANAGED_IDENTITY_CLIENT_ID"
+echo "Managed Identity Client name: $MANAGED_IDENTITY_NAME"
 echo "Resource Group: $AZURE_RESOURCE_GROUP"
 echo ""
