@@ -14,7 +14,7 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "eastus"
+      "defaultValue": "northeurope"
     },
     "storageAccountName": {
       "type": "string",

@@ -79,8 +79,9 @@ if [ -n "$WEB_URI" ] && [ "$WEB_URI" != "null" ]; then
 fi
 
 echo "=== Deployment Complete ==="
+echo "Managed Identity Client name: $MANAGED_IDENTITY_NAME"
 echo "Storage Account: $STORAGE_ACCOUNT_NAME"
 echo "Container Name: $STORAGE_CONTAINER_NAME"
-echo "Managed Identity Client name: $MANAGED_IDENTITY_NAME"
+echo "Configuration Script URI: $WEB_URI/scripts.zip"
 echo "Resource Group: $AZURE_RESOURCE_GROUP"
 echo ""
