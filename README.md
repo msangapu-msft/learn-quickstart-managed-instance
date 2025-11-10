@@ -4,170 +4,144 @@ This repository contains deployment scripts and infrastructure-as-code for provi
 
 ## Overview
 
-This project deploys an Azure App Service Managed Instance in West Central US with custom font installation capabilities. The deployment includes:
-- Azure Resource Group with random suffix for uniqueness
-- Managed Identity for secure resource access
-- Azure Storage Account for configuration packages
-- Custom font installation support
+This project deploys an Azure App Service Managed Instance and supports packaging and uploading custom TrueType font (`.ttf`) files to Azure Blob Storage for later consumption.
+
+## Running Environment
+
+Intended to be executed in **Azure Cloud Shell** (Bash). Cloud Shell already includes:
+- Azure CLI
+- Azure Developer CLI (`azd`)
+- OpenSSL
+- jq
+- unzip
+- Bash
+
+If you choose to run locally instead of Cloud Shell, you must ensure those tools are installed manually.
 
 ## Prerequisites
 
-Before running the deployment, ensure you have:
-
-- **Azure CLI** installed and authenticated (`az login`)
-- **Azure Developer CLI (azd)** installed
-- **OpenSSL** for generating random hashes
-- **jq** for JSON parsing
-- **Bash shell** environment (Linux/macOS/WSL)
-- Appropriate Azure subscription with permissions to create resources
-- Storage Blob Data Contributor role assignment capability
+When using Azure Cloud Shell, the only prerequisites are:
+- An Azure subscription where you can create resource groups, storage accounts, and managed identities.
+- Permission to assign the “Storage Blob Data Contributor” role at the storage account scope (or have someone pre-assign it).
+- A set of `.ttf` font files if you want font packaging to succeed.
 
 ## Project Structure
 
 ```
 .
-├── deploy.sh                    # Main deployment script
+├── deploy.sh                  # Main deployment script
 ├── scripts/
-│   └── prepare-install.sh       # Font package preparation script
-├── configuration-scripts.zip    # Generated font package
-└── README.md                    # This file
+│   └── prepare-install.sh     # Font packaging script
+├── scripts.zip                # Generated during deployment
+└── README.md
 ```
 
 ## Configuration
 
-The deployment script uses the following environment variables (with defaults):
+| Variable    | Default                | Description                          |
+|-------------|------------------------|--------------------------------------|
+| `ENV_NAME`  | `managed-instance-demo`| Azure Developer CLI environment name |
+| `LOCATION`  | `northeurope`          | Azure region for deployment          |
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `ENV_NAME` | `aptos-mi-demo` | Azure Developer CLI environment name |
-| `LOCATION` | `westcentralus` | Azure region for deployment |
+Override on invocation:
+```bash
+ENV_NAME="my-env" LOCATION="eastus" ./deploy.sh
+```
+
+## Font Preparation
+
+Place any `.ttf` font files in the location expected by `scripts/prepare-install.sh`. (Open the script to confirm the directory it zips—adjust if necessary.) Ensure it is executable:
+```bash
+chmod +x scripts/prepare-install.sh
+```
 
 ## Deployment Instructions
 
-### Quick Start
+### Quick Start (Cloud Shell)
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/msangapu-msft/learn-quickstart-managed-instance.git
-   cd learn-quickstart-managed-instance
-   ```
-
-2. Run the deployment script:
-   ```bash
-   ./deploy.sh
-   ```
+```bash
+git clone https://github.com/msangapu-msft/learn-quickstart-managed-instance.git
+cd learn-quickstart-managed-instance
+./deploy.sh
+```
 
 ### Custom Deployment
 
-To deploy with custom settings:
-
 ```bash
-ENV_NAME="my-custom-env" LOCATION="eastus" ./deploy.sh
+ENV_NAME="my-custom-env" LOCATION="northeurope" ./deploy.sh
 ```
 
 ## Deployment Process
 
-The deployment script performs the following steps:
-
-1. **Environment Setup**
-   - Generates a random hash suffix for resource uniqueness
-   - Creates resource group name: `rg-aptos-mi-demo-[hash]`
-   - Cleans any existing environment configuration
-
-2. **Resource Group Creation**
-   - Creates a new Azure Resource Group in the specified location
-
-3. **Azure Developer CLI Environment**
-   - Creates a new azd environment
-   - Sets Azure location and resource group variables
-
-4. **Font Package Preparation**
-   - Builds font installation package using `scripts/prepare-install.sh`
-   - Verifies TTF fonts are properly packaged
-   - Creates `configuration-scripts.zip` containing fonts
-
-5. **Infrastructure Provisioning**
-   - Provisions base infrastructure using azd
-   - Creates:
-     - Managed Identity
-     - Storage Account
-     - Storage Container
-
-6. **Storage Configuration**
-   - Grants current user Storage Blob Data Contributor role
-   - Waits for role propagation (20 seconds)
-   - Uploads font package to blob storage
+1. Cleans any existing azd environment directory (`.azure/$ENV_NAME`).
+2. Creates (or reuses) a fixed resource group: `rg-managed-instance`.
+3. Creates an azd environment; sets `AZURE_LOCATION` and `AZURE_RESOURCE_GROUP`.
+4. Runs font packaging (`scripts/prepare-install.sh`) and validates `.ttf` presence.
+5. Calls `azd provision` to create infrastructure (managed identity, storage account, container).
+6. Assigns “Storage Blob Data Contributor” role to the signed-in user and waits ~20s.
+7. Uploads `scripts.zip` to the provisioned storage container.
 
 ## Resources Created
 
-After successful deployment, the following Azure resources are created:
-
-- **Resource Group**: `rg-aptos-mi-demo-[random-hash]`
-- **Storage Account**: For configuration and font packages
-- **Storage Container**: For storing installation scripts
-- **Managed Identity**: For secure resource access
-- **Role Assignments**: Storage Blob Data Contributor for deployment user
+- Resource Group: `rg-managed-instance`
+- Storage Account (name comes from azd template)
+- Storage Container
+- Managed Identity
+- Role Assignment: Storage Blob Data Contributor (current user)
 
 ## Post-Deployment
 
-After deployment completes, the script outputs:
-- Resource Group name
-- Storage Account name
-- Storage Container name
-- Managed Identity ID
-
-These values are stored in the azd environment and can be retrieved using:
+View environment values:
 ```bash
 azd env get-values
 ```
 
+You’ll see:
+- `AZURE_RESOURCE_GROUP`
+- `STORAGE_ACCOUNT_NAME`
+- `STORAGE_CONTAINER_NAME`
+- `MANAGED_IDENTITY_ID`
+
 ## Troubleshooting
 
 ### Font Package Issues
-If you encounter "No fonts found in configuration-scripts.zip":
-- Ensure TTF font files are present in the expected location
-- Check the `scripts/prepare-install.sh` script is executable
-- Verify the font packaging process completes successfully
+`ERROR: No fonts found in scripts.zip`
+- Confirm `.ttf` files are placed correctly.
+- Ensure `prepare-install.sh` is executable.
+- Verify `unzip` output lists the fonts.
 
-### Role Assignment Issues
-If storage upload fails:
-- Ensure you have permissions to assign roles in the subscription
-- Wait additional time for role propagation if needed
-- Check Azure AD permissions for the current user
+### Role / Upload Issues
+- Confirm RBAC permissions for role assignment.
+- If propagation delay persists, increase wait (e.g., 40–60s).
+- Verify identity context: `az account show` and `az ad signed-in-user show`.
 
-### Clean Up
+### Re-Running Deployments
+Because the resource group name is fixed (`rg-managed-instance`), re-runs may reuse existing resources. For a clean run, delete the resource group first or modify the script to append a hash suffix.
 
-To remove all deployed resources:
+## Clean Up
 
 ```bash
-# Get the resource group name
 RG_NAME=$(azd env get-values --output json | jq -r .AZURE_RESOURCE_GROUP)
-
-# Delete the resource group
 az group delete --name "$RG_NAME" --yes --no-wait
-
-# Remove the azd environment
 azd env delete --purge --force
 ```
 
-## Requirements
+## Optional Enhancements
 
-- Azure subscription with active credits/billing
-- Azure CLI version 2.x or higher
-- Azure Developer CLI (azd) latest version
-- Bash shell (4.0+)
-- OpenSSL
-- jq (JSON processor)
+If you want unique resource groups per run, update `deploy.sh`:
+```bash
+RANDOM_HASH=$(openssl rand -hex 4)
+RG_NAME="rg-managed-instance-$RANDOM_HASH"
+```
 
 ## Author
 
 **msangapu-msft**  
-Date: 2025-11-04  
-Location: West Central US
+Date: 2025-11-04
 
 ## License
 
-[Add your license information here]
+[Add license information here]
 
 ## Contributing
 
